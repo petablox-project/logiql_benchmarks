@@ -1,0 +1,4 @@
+apisan, projectname
+traces.proto, proto, descName=traces
+
+checker.logic, active

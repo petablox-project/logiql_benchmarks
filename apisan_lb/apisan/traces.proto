@@ -1,0 +1,85 @@
+package traces;
+
+enum BinopType {
+  bplus = 1;
+  btimes = 2;
+  bdivide = 3;
+  bmod = 4;
+  bminus = 5;
+  brshift = 6;
+  blshift = 7;
+  bless = 8;
+  bleq = 9;
+  bgeq = 10;
+  bgt = 11;
+  beq = 12;
+  bneq = 13;
+  band = 14;
+  bor = 15;
+  bxor = 16;
+  bland = 17;
+  blor = 18;
+}
+
+message BinopExpr {
+  required BinopType binop = 1;
+  required Expression binop_l = 2;
+  required Expression binop_r = 3;
+}
+
+message ProjExpr {
+  required Expression base = 1;
+  required string field = 2;
+}
+
+message ArrayExpr {
+  required Expression base = 1;
+  required Expression index = 2;
+}
+
+message Expression { 
+  oneof expr {
+    int64 int_lit = 1;
+    string str_lit = 2;
+    string id = 3;
+    BinopExpr bin = 4;
+    ProjExpr proj = 5;
+    ArrayExpr arr = 6;
+    int64 ret_var = 7;
+  };
+}
+
+message Range {
+  required int64 min = 1;
+  required int64 max = 2;
+}
+
+message Ranges {
+  repeated Range ranges = 1;
+}
+
+message CallEvent {
+  required string name = 1;
+  repeated Expression args = 2;
+  required int64 retid = 3;
+}
+
+message CheckEvent {
+  required Expression checked = 1;
+  required Ranges ranges = 2;
+}
+
+message Event {
+  oneof event {
+    CallEvent call = 1;
+    CheckEvent check = 2;
+  };
+}
+
+message Trace {
+  repeated Event events = 1;
+}
+
+message Traces {
+  repeated Trace traces = 1;
+}
