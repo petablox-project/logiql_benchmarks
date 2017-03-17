@@ -42,10 +42,18 @@ RVContexts(f, t, i, rs) <- traces:Traces_traces[t, _] = y,
                            traces:CallEvent_name[call] = f,
                            traces:CallEvent_retid[call] = i.
 
-/* Possible issue: how are ranges identified? If you can have multiple
-with the same min/max set then I need to rethink this */
-Frequency[f, r] = n -> string(f), traces:Ranges(r), int(n).
-Frequency[f, r] = n <- agg<<n = count()>> RVContexts(f, _, _, r).
+Frequency[f, r] = n -> string(f), traces:Range(r), int(n).
+Frequency[f, r] = n <- agg<<n = count()>> RVContexts(f, _, _, rs), traces:Ranges_ranges[rs, _] = r.
 
 Total[f] = n -> string(f), int(n).
 Total[f] = n <- agg<<n = count()>> RVContexts(f, _, _, _).
+
+Majority(f, r) -> string(f), traces:Range(r).
+Majority(f, r) -> Frequency[f, r] = n, Total[f] = t, int:decimal:convert[n] / int:decimal:convert[t] > 0.8.
+
+BugFree(f, t, i, c) -> string(f), traces:Traces(t), int(i), traces:Ranges(c).
+BugFree(f, t, i, c) <- RVContexts(f, t, i, c), traces:Ranges_ranges[c, _] = r, Majority(f, r).
+
+Buggy(f, t, i, c) -> string(f), traces:Traces(t), int(i), traces:Ranges(c).
+Buggy(f, t, i, c) <- RVContexts(f, t, i, c), !BugFree(f, t, i, c).
+
