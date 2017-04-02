@@ -71,8 +71,8 @@ message CheckEvent {
 
 message Event {
   oneof event {
-    CallEvent call = 1;
-    CheckEvent check = 2;
+    CallEvent call_event = 1;
+    CheckEvent check_event = 2;
   };
 }
 

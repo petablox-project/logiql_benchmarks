@@ -1,0 +1,60 @@
+In_proj(v, p) -> int(v), traces:ProjExpr(p).
+In_proj(v, p) <- traces:ProjExpr_base[p] = e, In(v, e).
+
+In_arr(v, a) -> int(v), traces:ArrayExpr(a).
+In_arr(v, a) <- traces:ArrayExpr_base[a] = e, In(v, e).
+In_arr(v, a) <- traces:ArrayExpr_index[a] = e, In(v, e).
+
+In_binop(v, b) -> int(v), traces:BinopExpr(b).
+In_binop(v, b) <- traces:BinopExpr_binop_l[b] = e, In(v, e).
+In_binop(v, b) <- traces:BinopExpr_binop_r[b] = e, In(v, e).
+
+In(v, e) -> int(v), traces:Expression(e).
+In(v, e) <- traces:Expression_ret_var[e] = v.
+In(v, e) <- traces:Expression_arr[e] = a, In_arr(v, a).
+In(v, e) <- traces:Expression_proj[e] = p, In_proj(v, p).
+In(v, e) <- traces:Expression_bin[e] = b, In_binop(v, b).
+
+Range_eq(t1, t2) -> traces:Range(t1), traces:Range(t2).
+Range_eq(t1, t2) <- traces:Range_min[t1] = traces:Range_min[t2],
+                    traces:Range_max[t1] = traces:Range_max[t2].
+
+Ranges_size[rs1] = n -> traces:Ranges(rs1), int(n).
+Ranges_size[rs1] = n <- agg<<n = count()>> traces:Ranges_ranges[rs1, _] = _.
+
+Ranges_eq_count[rs1, rs2] = n -> traces:Ranges(rs1), traces:Ranges(rs2), int(n).
+Ranges_eq_count[rs1, rs2] = n <- agg<<n = count()>> traces:Ranges_ranges[rs1, _] = y, traces:Ranges_ranges[rs2, _] = x, Range_eq(x, y). 
+
+Ranges_eq(rs1, rs2) -> traces:Ranges(rs1), traces:Ranges(rs2).
+Ranges_eq(rs1, rs2) <- Ranges_eq_count[rs1, rs2] = Ranges_size[rs1], Ranges_size[rs1] = Ranges_size[rs2].
+
+/* Return value */
+RVContexts(t, c, r) -> traces:CallEvent(c), traces:Traces(t), traces:Range(r).
+RVContexts(t, c, r) <- traces:Traces_traces[t, _] = y, 
+                       traces:Trace_events[y, _] = e,
+                       traces:Event_check_event[e] = ch, 
+                       traces:CheckEvent_checked[ch] = expr, 
+                       traces:CheckEvent_ranges[ch] = rs1,
+                       traces:Ranges_ranges[rs1, _] = r,
+                       In(i, expr),
+                       traces:Trace_events[y, _] = e2,
+                       traces:Event_call_event[e2] = c,
+                       traces:CallEvent_retid[c] = i.
+
+Frequency[f, r] = n -> string(f), traces:Range(r), int(n).
+Frequency[f, r] = n <- agg<<n = count()>> RVContexts(_, c, r2), Range_eq(r, r2), traces:CallEvent_name[c] = f.
+
+Total[f] = n -> string(f), int(n).
+Total[f] = n <- agg<<n = count()>> RVContexts(_, c, _), traces:CallEvent_name[c] = f.
+
+Majority(f, r) -> string(f), traces:Range(r).
+Majority(f, r) <- Frequency[f, r] = n, Total[f] = t, int:decimal:convert[n] / int:decimal:convert[t] > 0.3.
+
+BugFree(t, c) -> traces:Traces(t), traces:CallEvent(c).
+BugFree(t, c) <- RVContexts(t, c, r), Majority(f, r), traces:CallEvent_name[c] = f.
+
+Buggy(t, c) -> traces:Traces(t), traces:CallEvent(c).
+Buggy(t, c) <- !BugFree(t, c), 
+               traces:Traces_traces[t, _] = y, 
+               traces:Trace_events[y, _] = e, 
+               traces:Event_call_event[e] = c.

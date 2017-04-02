@@ -1,0 +1,7 @@
+*.swp
+*~
+
+*.lbb
+*.lbp
+*.pyc
+proto-gen/
