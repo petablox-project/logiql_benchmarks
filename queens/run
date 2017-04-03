@@ -1,0 +1,14 @@
+#!/bin/bash
+
+echo "making database ..."
+lb delete DB
+lb create DB
+
+echo "adding logic ..."
+lb addblock DB --file queens.logic
+
+echo "adding facts ..."
+lb exec --file facts.logic  DB
+
+echo "printing results ..."
+lb print DB Queen8

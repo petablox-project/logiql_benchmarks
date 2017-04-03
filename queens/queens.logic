@@ -1,0 +1,38 @@
+// Declarations
+Queen1(x) -> int(x).
+Queen2(x1, x2) -> int(x1), int(x2).
+Queen3(x1, x2, x3) -> int(x1), int(x2), int(x3).
+Queen4(x1, x2, x3, x4) -> int(x1), int(x2), int(x3), int(x4).
+Queen5(x1, x2, x3, x4, x5) -> int(x1), int(x2), int(x3), int(x4), int(x5).
+Queen6(x1, x2, x3, x4, x5, x6) -> int(x1), int(x2), int(x3), int(x4), int(x5), int(x6).
+Queen7(x1, x2, x3, x4, x5, x6, x7) -> int(x1), int(x2), int(x3), int(x4), int(x5), int(x6), int(x7).
+Queen8(x1, x2, x3, x4, x5, x6, x7, x8) -> int(x1), int(x2), int(x3), int(x4), int(x5), int(x6), int(x7), int(x8).
+
+NextQueen2(x1, x2) -> int(x1), int(x2).
+NextQueen3(x1, x2, x3) -> int(x1), int(x2), int(x3).
+NextQueen4(x1, x2, x3, x4) -> int(x1), int(x2), int(x3), int(x4).
+NextQueen5(x1, x2, x3, x4, x5) -> int(x1), int(x2), int(x3), int(x4), int(x5).
+NextQueen6(x1, x2, x3, x4, x5, x6) -> int(x1), int(x2), int(x3), int(x4), int(x5), int(x6).
+NextQueen7(x1, x2, x3, x4, x5, x6, x7) -> int(x1), int(x2), int(x3), int(x4), int(x5), int(x6), int(x7).
+NextQueen8(x1, x2, x3, x4, x5, x6, x7, x8) -> int(x1), int(x2), int(x3), int(x4), int(x5), int(x6), int(x7), int(x8).
+
+Okay(x1, n, x2) -> int(x1), int(n), int(x2).
+Okay(x1, n, x2) <- x1 != x2, x1 != x2 + n, x2 != x1 + n, Queen1(x1), Queen1(n), Queen1(x2).
+
+Queen2(x1, x2) <- Queen1(x1), NextQueen2(x1, x2).
+Queen3(x1, x2, x3) <- Queen2(x1, x2), NextQueen3(x1, x2, x3).
+Queen4(x1, x2, x3, x4) <- Queen3(x1, x2, x3), NextQueen4(x1, x2, x3, x4).
+Queen5(x1, x2, x3, x4, x5) <- Queen4(x1, x2, x3, x4), NextQueen5(x1, x2, x3, x4, x5).
+Queen6(x1, x2, x3, x4, x5, x6) <- Queen5(x1, x2, x3, x4, x5), NextQueen6(x1, x2, x3, x4, x5, x6).
+Queen7(x1, x2, x3, x4, x5, x6, x7) <- Queen6(x1, x2, x3, x4, x5, x6), NextQueen7(x1, x2, x3, x4, x5, x6, x7).
+Queen8(x1, x2, x3, x4, x5, x6, x7, x8) <- Queen7(x1, x2, x3, x4, x5, x6, x7), NextQueen8(x1, x2, x3, x4, x5, x6, x7, x8).
+
+NextQueen2(x1, x2) <- Okay(x1, 1, x2).
+NextQueen3(x1, x2, x3) <- NextQueen2(x2, x3), Okay(x1, 2, x3).
+NextQueen4(x1, x2, x3, x4) <- NextQueen3(x2, x3, x4), Okay(x1, 3, x4).
+NextQueen5(x1, x2, x3, x4, x5) <- NextQueen4(x2, x3, x4, x5), Okay(x1, 4, x5).
+NextQueen6(x1, x2, x3, x4, x5, x6) <- NextQueen5(x2, x3, x4, x5, x6), Okay(x1, 5, x6).
+NextQueen7(x1, x2, x3, x4, x5, x6, x7) <- NextQueen6(x2, x3, x4, x5, x6, x7), Okay(x1, 6, x7).
+NextQueen8(x1, x2, x3, x4, x5, x6, x7, x8) <- NextQueen7(x2, x3, x4, x5, x6, x7, x8), Okay(x1, 7, x8).
+
+
