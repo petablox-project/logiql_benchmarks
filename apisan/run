@@ -11,7 +11,7 @@ echo "adding project ..."
 lb addproject DB .
 
 echo "adding facts ..."
-lb import-protobuf DB traces Traces "$1"
+lb import-protobuf DB traces Traces data.protoout
 
 echo "printing results ..."
 lb query DB '_(x, z) <- Buggy(x, y), traces:CallEvent_code[y] = z.'

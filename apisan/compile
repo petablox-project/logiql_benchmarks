@@ -1,3 +1,8 @@
+if [ ! -d python ]
+then
+  mkdir python
+fi
+
 protoc traces.proto --python_out=python
 
-python3 converter.py $1
+python3 converter.py 
