@@ -1,8 +1,5 @@
 #!/bin/bash
 
-echo "compiling project ..."
-lb compile project apisan.project
-
 echo "making database ..."
 lb delete DB
 lb create DB

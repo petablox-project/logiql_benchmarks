@@ -4,3 +4,5 @@ then
 fi
 
 protoc traces.proto --python_out=python
+lb compile project apisan.project
+
