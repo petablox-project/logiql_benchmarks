@@ -3,9 +3,9 @@ echo "Generating traces..."
 OLD=$(pwd)
 cd $1
 make clean
-~/apisan/apisan build make
+~/approx/apisan/apisan build make
 
 # as-out should now be in data/as-out/logiql_benchmarks/apisan/data/main.c.as
 
 cd $OLD
-python3 converter.py data/as-out/logiql_benchmarks/apisan/data/main.c.as
+python3 converter.py "$1/as-out"

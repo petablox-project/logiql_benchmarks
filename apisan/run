@@ -1,5 +1,17 @@
 #!/bin/bash
 
+echo "Generating traces..."
+
+OLD=$(pwd)
+cd $1
+make clean
+
+# This line needs to be changed depending on where apisan is
+~/approx/apisan/apisan build make
+
+cd $OLD
+python3 converter.py "$1/as-out"
+
 echo "making database ..."
 lb delete DB
 lb create DB

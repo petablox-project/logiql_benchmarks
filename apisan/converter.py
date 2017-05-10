@@ -165,9 +165,12 @@ def generate_output(trees, traces):
 def main():
     explorer = Explorer(None)
     traces = traces_pb2.Traces()
-    for f in sys.argv[1:]:
-        trees = explorer._parse_file(f)
-        generate_output(trees, traces)
+    for root, dirs, files in os.walk(sys.argv[1]):
+        for f in files:
+            fullpath = os.path.join(root, f)
+            if os.path.splitext(fullpath)[1] == ".as":
+                trees = explorer._parse_file(fullpath)
+                generate_output(trees, traces)
         
     out_file = open('data.protoout', 'wb')
     out_file.write(traces.SerializeToString())
