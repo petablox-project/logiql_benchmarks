@@ -128,9 +128,9 @@ def generate_output(trees, traces):
             
                 call_event = event.call_event
                 call_event.name = call.call.name.id
+                call_event.code = call.code
 
                 if not (call.call in calls):
-                    print(call.call)
                     next_id = get_value()
                     calls[call.call] = next_id
 
@@ -155,8 +155,9 @@ def generate_output(trees, traces):
                         rng.max = 9223372036854775807
                     else:
                         rng.max = r[1]
-
+           
             stack.extend(current.children)
+        #print(len(trace.events))
 
         # In other cases we don't materialize the check in the representation
 

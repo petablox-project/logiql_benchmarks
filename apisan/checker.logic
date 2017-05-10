@@ -53,10 +53,21 @@ Majority(f, r) <- Frequency[f, r] = n, Total[f] = t, int:decimal:convert[n] / in
 BugFree(t, c) -> traces:Traces(t), traces:CallEvent(c).
 BugFree(t, c) <- RVContexts(t, c, r), Majority(f, r), traces:CallEvent_name[c] = f.
 
+UsedLater(ts, c) -> traces:Traces(ts), traces:CallEvent(c).
+UsedLater(ts, c) <- traces:Trace_events[t, i] = e,
+                    traces:Event_call_event[e] = c,
+                    traces:Trace_events[t, j] = d,
+                    traces:Event_call_event[d] = _,
+                    traces:Traces_traces[ts, _] = t,
+                    j > i. 
+
+Minority(t, c) -> traces:Traces(t), traces:CallEvent(c).
+Minority(t, c) <- !BugFree(t, c), 
+                  traces:Traces_traces[t, _] = y, 
+                  traces:Trace_events[y, _] = e, 
+                  traces:Event_call_event[e] = c,
+                  traces:CallEvent_name[c] = f,
+                  Majority(f, _).
+
 Buggy(t, c) -> traces:Traces(t), traces:CallEvent(c).
-Buggy(t, c) <- !BugFree(t, c), 
-               traces:Traces_traces[t, _] = y, 
-               traces:Trace_events[y, _] = e, 
-               traces:Event_call_event[e] = c,
-               traces:CallEvent_name[c] = f,
-               Majority(f, _).
+Buggy(t, c) <- Minority(t, c), UsedLater(t, c).
