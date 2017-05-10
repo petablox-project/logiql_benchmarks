@@ -4,5 +4,3 @@ then
 fi
 
 protoc traces.proto --python_out=python
-
-python3 converter.py 
