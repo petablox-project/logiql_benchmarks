@@ -70,29 +70,28 @@ def pb_var(s, exp):
 
 def pb_binop_expr(s, exp, calls):
     binexpr = traces_pb2.BinopExpr()
-    exp_l = traces_pb2.Expression()
-    exp_r = traces_pb2.Expression()
-    binexpr.binop_l = pb_expr(exp.lhs, exp_l, calls)
-    binexpr.binop_r = pb_expr(exp.rhs, exp_r, calls)
-    binexpr.binop = pb_binop(exp.op)
-    exp.bin = binexpr
+    pb_expr(s.lhs, binexpr.binop_l, calls)
+    pb_expr(s.rhs, binexpr.binop_r, calls)
+    binexpr.binop = pb_binop(s.op)
+    exp.bin.CopyFrom(binexpr)
 
 def pb_proj_expr(s, exp, calls):
     projexpr = traces_pb2.ProjExpr()
-    exp_base = traces_pb2.Expression()
-    projexpr.base = pb_expr(exp.base, exp_base, calls)
-    projexpr.field = exp.member
-    exp.proj = projexpr
+    pb_expr(s.base, projexpr.base, calls)
+    projexpr.field = s.member
+    exp.proj.CopyFrom(projexpr)
 
 def pb_arr_expr(s, exp, calls):
     arrexpr = traces_pb2.ArrayExpr()
-    exp_base = traces_pb2.Expression()
-    exp_index = traces_pb2.Expression()
-    arrexpr.base = pb_expr(exp.base, exp_base, calls)
-    arrexpr.index = pb_expr(exp.index, exp_index, calls)
-    exp.arr = arrexpr
+    pb_expr(s.base, arrexpr.base, calls)
+    pb_expr(s.index, arrexpr.index, calls)
+    exp.arr.CopyFrom(arrexpr)
 
 def pb_call(s, exp, calls):
+    if (not s in calls):
+        next_id = get_value()
+        calls[s] = next_id
+
     exp.ret_var = calls[s]
 
 def pb_expr(s, exp, calls):
@@ -107,7 +106,7 @@ def pb_expr(s, exp, calls):
     elif isinstance(s, FieldSymbol):
         pb_proj_expr(s, exp, calls)
     elif isinstance(s, ArraySymbol):
-        pb_array_expr(s, exp, calls)
+        pb_arr_expr(s, exp, calls)
     elif isinstance(s, CallSymbol):
         pb_call(s, exp, calls)
     else:
@@ -127,6 +126,10 @@ def generate_output(trees, traces):
                 call = current.event
             
                 call_event = event.call_event
+                if call.call is None:
+                    stack.extend(current.children)
+                    continue
+
                 call_event.name = call.call.name.id
                 call_event.code = call.code
 
@@ -143,14 +146,22 @@ def generate_output(trees, traces):
             elif isinstance(current.event, AssumeEvent):
                 event = trace.events.add()
                 cons = current.event
-            
+                
+                if cons.cond is None:
+                    stack.extend(current.children)
+                    continue
+
                 cons_event = event.check_event
                 to_check = traces_pb2.Expression()
                 pb_expr(cons.cond.symbol, cons_event.checked, calls)
 
                 for r in cons.cond.constraints:
                     rng = cons_event.ranges.ranges.add()
-                    rng.min = r[0]
+                    if r[0] > 9223372036854775807:
+                        rng.min = 9223372036854775807
+                    else:
+                        rng.min = r[0]
+
                     if r[1] > 9223372036854775807:
                         rng.max = 9223372036854775807
                     else:
