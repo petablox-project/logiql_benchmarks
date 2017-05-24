@@ -1,0 +1,33 @@
+block(`rv_context) {
+  alias_all(`traces:traces),
+  alias_all(`checkers:util),
+  export(`{
+    RVContexts(c, r) -> Event(c), Range(r).
+    Frequency[f, r] = n -> string(f), Range(r), int(n).
+    Total[f] = n -> string(f), int(n).
+    Majority(f, r) -> string(f), Range(r).
+    BugFree(c) -> Event(c).
+    UsedLater(c) -> Event(c).
+    Minority(c) -> Event(c).
+    Buggy(c) -> Event(c).
+  }),
+
+  clauses(`{
+    RVContexts(c, r) <- CallEvent[_, id, _, _, _] = c,
+                        Follows(c, check),
+                        CheckEvent[e, _, r] = check,
+                        In(id, e).
+
+    Frequency[f, r] = n <- 
+      agg<<n = count()>> RVContexts(c, r), CallEvent[f, _, _, _, _] = c.
+
+    Total[f] = n <- agg<<n = count()>> RVContexts(c, _), CallEvent[f, _, _, _, _] = c.
+
+    Majority(f, r) <- Frequency[f, r] = freq, Total[f] = tot, int:decimal:convert[freq] / int:decimal:convert[tot] > 0.3.
+    
+    BugFree(c) <- RVContexts(c, r), Majority(f, r), CallEvent[f, _, _, _, _] = c.
+    UsedLater(c) <- Follows(c, _).
+    Minority(c) <- !BugFree(c), Majority(f, _), CallEvent[f, _, _, _, _] = c.
+    Buggy(c) <- Minority(c), UsedLater(c).
+  })
+} <-- .

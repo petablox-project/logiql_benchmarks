@@ -1,6 +1,8 @@
 *.swp
 *~
 
+as-out
+*.o
 *.lbb
 *.lbp
 *.pyc

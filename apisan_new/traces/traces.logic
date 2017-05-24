@@ -1,0 +1,63 @@
+block (`traces) {
+  export ( `{
+
+Range(_) -> .
+RangeConstructor[min, max] = r -> int(min), int(max), Range(r).
+
+Event(_) -> .
+CallEvent[name, id, code, arg_index, args] = e ->
+  string(name), string(code), int(id), int(arg_index), Expression(args), Event(e).
+CheckEvent[exp, range_index, ranges] = e ->
+  Expression(exp), int(range_index), Range(ranges), Event(e).
+
+Next(e1, e2) -> Event(e1), Event(e2).
+
+Expression(_) -> .
+IntLiteral[i] = e -> int(i), Expression(e).
+StringLiteral[s] = e -> string(s), Expression(e).
+Identifier[id] = e -> string(id), Expression(e).
+ReturnVariable[i] = e -> int(i), Expression(e).
+Binop[b, e1, e2] = e -> traces:Expression(e1), traces:Expression(e2), traces:BinopType(b), traces:Expression(e).
+Array[base, index] = e -> traces:Expression(base), traces:Expression(index), traces:Expression(e).
+Projection[base, field] = e -> traces:Expression(base), string(field), traces:Expression(e).
+
+BinopType(x) -> .
+BinopEnum[s] = x -> string(s), BinopType(x).
+
+} ),
+  clauses ( `{
+BinopEnum[s]=_ -> s = "bplus"; s = "btimes"; s = "bdivide"; s = "bmod"; s = "bminus"; s = "brshift"; s = "blshift"; s = "bless"; s = "bleq"; s = "bgeq"; s = "bgt"; s = "beq"; s = "bneq"; s = "band"; s = "bor"; s = "bxor"; s = "bland"; s = "blor".
+BinopType(x), BinopEnum["bplus"]=x <- .
+BinopType(x), BinopEnum["btimes"]=x <- .
+BinopType(x), BinopEnum["bdivide"]=x <- .
+BinopType(x), BinopEnum["bmod"]=x <- .
+BinopType(x), BinopEnum["bminus"]=x <- .
+BinopType(x), BinopEnum["brshift"]=x <- .
+BinopType(x), BinopEnum["blshift"]=x <- .
+BinopType(x), BinopEnum["bless"]=x <- .
+BinopType(x), BinopEnum["bleq"]=x <- .
+BinopType(x), BinopEnum["bgeq"]=x <- .
+BinopType(x), BinopEnum["bgt"]=x <- .
+BinopType(x), BinopEnum["beq"]=x <- .
+BinopType(x), BinopEnum["bneq"]=x <- .
+BinopType(x), BinopEnum["band"]=x <- .
+BinopType(x), BinopEnum["bor"]=x <- .
+BinopType(x), BinopEnum["bxor"]=x <- .
+BinopType(x), BinopEnum["bland"]=x <- .
+BinopType(x), BinopEnum["blor"]=x <- .
+
+lang:constructor(`RangeConstructor).
+lang:constructor(`CallEvent).
+lang:constructor(`CheckEvent).
+lang:constructor(`IntLiteral).
+lang:constructor(`StringLiteral).
+lang:constructor(`Identifier).
+lang:constructor(`ReturnVariable).
+lang:constructor(`Binop).
+lang:constructor(`Array).
+lang:constructor(`Projection).
+lang:constructor(`BinopEnum).
+
+  } )
+} <-- .
+

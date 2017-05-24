@@ -1,0 +1,19 @@
+block(`util) {
+  alias_all(`traces:traces),
+  export(`{
+    Follows(e1, e2) -> Event(e1), Event(e2).
+    In(v, e) -> int(v), Expression(e).
+  }),
+
+  clauses(`{
+    Follows(e1, e2) <- Next(e1, e2).
+    Follows(e1, e2) <- Follows(e1, e3), Follows(e3, e2).
+
+    !(Follows(e, e)).
+
+    In(v, e) <- ReturnVariable[v] = e.
+    In(v, e) <- Binop[_, e1, e2] = e, (In(v, e1); In(v, e2)).
+    In(v, e) <- Array[b, i] = e, (In(v, b); In(v, i)).
+    In(v, e) <- Projection[b, _] = e, In(v, b).
+  })
+} <-- .
