@@ -5,10 +5,15 @@ Range(_) -> .
 RangeConstructor[min, max] = r -> int(min), int(max), Range(r).
 
 Event(_) -> .
-CallEvent[name, id, code, arg_index, args] = e ->
-  string(name), string(code), int(id), int(arg_index), Expression(args), Event(e).
-CheckEvent[exp, range_index, ranges] = e ->
-  Expression(exp), int(range_index), Range(ranges), Event(e).
+CallEvent(e) -> Event(e).
+CheckEvent(e) -> Event(e).
+Call[retid] = e -> CallEvent(e), int(retid).
+Check[checkid] = e -> CheckEvent(e), int(checkid).
+
+Checks(e, exp, r) -> Expression(exp), Range(r), CheckEvent(e).
+Arguments[e, i] = r -> CallEvent(e), int(i), Range(r).
+CallName[x] = y -> CallEvent(x), string(y).
+CallCode[x] = y -> CallEvent(x), string(y).
 
 Next(e1, e2) -> Event(e1), Event(e2).
 
@@ -47,8 +52,8 @@ BinopType(x), BinopEnum["bland"]=x <- .
 BinopType(x), BinopEnum["blor"]=x <- .
 
 lang:constructor(`RangeConstructor).
-lang:constructor(`CallEvent).
-lang:constructor(`CheckEvent).
+lang:constructor(`Call).
+lang:constructor(`Check).
 lang:constructor(`IntLiteral).
 lang:constructor(`StringLiteral).
 lang:constructor(`Identifier).
